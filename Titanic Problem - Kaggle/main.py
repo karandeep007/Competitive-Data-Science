@@ -48,21 +48,21 @@ def make_predictions(testX, clf):
 
 if __name__ == '__main__':
 
-    DIR = 'C:/Users/karandeep/Desktop/ML and AI/Titanic Problem - Kaggle'
     train_file = 'data/train.csv'
     test_file = 'data/test.csv'
 
-    train_df = pd.read_csv(os.path.join(DIR, train_file))
-    test_df = pd.read_csv(os.path.join(DIR, test_file))
+    train_df = pd.read_csv(train_file)
+    test_df = pd.read_csv(test_file)
     # Not sure of type = ['Cabin','Ticket']
     cat_features = ['Pclass','Sex','Embarked']
-    num_features = ['Age','Fare','SibSp']
+    # Fare Numeric removed as it was least imp, no change in model metrics
+    num_features = ['Age','SibSp']
     target = 'Survived'
     print(train_df.columns)
     print(train_df.head())
 
     # plots for Numeric
-    plots.scatterplot(train_df,num_features,os.getcwd()+"/plots/",target)
+    plots.scatterplot(train_df,num_features,"plots/",target)
     # view missing value proportion
 
     # Some data prep
@@ -94,5 +94,18 @@ if __name__ == '__main__':
     testY['Survived'] = final_pred.tolist()
     testY.to_csv(os.path.join(os.getcwd()+'/FinalPredictions.csv'),index=False)
 
-    # print(testX.shape)
-    # print(train_df)
+    # ToDo: Calculate prediction accuracy
+
+    # Feature Importance
+    feature_names = model.feature_names_in_
+    feature_imp = model.coef_
+    re_1 =  np.reshape(model.feature_names_in_, (-1, 1))
+    re_2 = np.reshape(model.coef_, (-1, 1))
+    htack_fimp = np.hstack((re_1, re_2))
+    feature_imp_df = pd.DataFrame(htack_fimp, columns=['Feature', 'Imp'])
+
+    # Top Features
+    feature_imp_df['Imp_Abs'] = feature_imp_df['Imp'].abs()
+    feature_imp_df = feature_imp_df.sort_values(by=['Imp_Abs'], ascending=False)
+
+    print('END')
